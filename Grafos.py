@@ -65,3 +65,6 @@ def dibujar_grafo(grafo):
     
     plt.tight_layout()
     plt.show()
+
+def es_conexo(grafo):
+    return nx.is_strongly_connected(grafo)

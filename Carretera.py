@@ -2,31 +2,18 @@
 import numpy as np
 import pandas as pd
 import random
-from Grafos import matriz_adyacencia_a_grafo,dibujar_grafo
+from Grafos import matriz_adyacencia_a_grafo,dibujar_grafo,es_conexo
 
 # Declaramos las contantes, las cantidades de piezas de cada tipo
-RECTAS = 5
-CURVAS = 0
-DISECCION_1 = 0
-DISECCION_2 = 0
+RECTAS = 12
+CURVAS = 16
+DISECCION_1 = 2
+DISECCION_2 = 2
 TAM_MATRIZ = RECTAS + CURVAS + DISECCION_1 + DISECCION_2
 
-def verificar_suma_columnas(matriz):
-    # Verificar las primeras 28 columnas (índices 0 a 27)
-    for j in range(RECTAS + CURVAS):
-        suma_columna = np.sum(matriz, axis=0) - np.diag(matriz)
-        if suma_columna > 2:
-            print(f"Columna {j+1}: suma = {suma_columna} (debe ser ≤ 2)")
-            return False
-    
-    # Verificar las columnas 29 a 32 (0índices 28 a 31)
-    for j in range(RECTAS + CURVAS, TAM_MATRIZ):
-        suma_columna = sum(matriz[i][j] for i in range(32))
-        if suma_columna > 3:
-            print(f"Columna {j+1}: suma = {suma_columna} (debe ser ≤ 3)")
-            return False
-    return True
-
+def sumas (matriz):
+    suma = np.sum(np.sum(matriz, axis=0) - np.diag(matriz))
+    return suma
 def sumas_ejes(matriz):
         return np.sum(matriz, axis=0) - np.diag(matriz), np.sum(matriz, axis=1) - np.diag(matriz) 
 
@@ -48,18 +35,25 @@ def Casilla_valida(matriz, tipo_1, tipo_2):
     rango_2 = rangos(tipo_2)
     # Calcular sumas (excluyendo diagonal)
     sumas_columnas ,sumas_filas= sumas_ejes(matriz)
-    print(f"suma de las filas\n{sumas_filas} \n sumas de las columnas\n{sumas_columnas} \n")
-    # Buscar columnas válidas
+    if tipo_1 in (3, 4) or tipo_2 in (3, 4):
+        for i in rango_1:
+            if sumas_columnas[i] <= 1 :
+            #print(f"suma de la columna: {sumas_columnas[i]} en la columna {i}")
+                for j in rango_2:
+                    if sumas_filas[j] <= 1 :
+                    #print(f"suma de la fila: {sumas_filas[j]} en la fila {j}")
+                        if i != j and (matriz[i][j] <= 1   and matriz[j][i] <=1):
+                            print(f" i : {i}, j : {j}")
+                            return j,i
     for i in rango_1:
         if sumas_columnas[i] == 0:
-            print(f"suma de la columna: {sumas_columnas[i]} en la columna {i}")
+            #print(f"suma de la columna: {sumas_columnas[i]} en la columna {i}")
             for j in rango_2:
                 if sumas_filas[j] == 0:
-                    print(f"suma de la fila: {sumas_filas[j]} en la fila {j}")
+                    #print(f"suma de la fila: {sumas_filas[j]} en la fila {j}")
                     if i != j and (matriz[i][j] == 0  and matriz[j][i] == 0):
                         print(f" i : {i}, j : {j}")
                         return j,i
-    
     return None
 
 def Funcion_transicion(estado, accion):
@@ -74,17 +68,27 @@ def Funcion_transicion(estado, accion):
 def Accion(a = 1, b = 4):
     return random.randint(a,b), random.randint(a,b)
 
-
-
 if __name__ == '__main__':
-    estado_inicial = np.eye(TAM_MATRIZ)
-    estado_actual = estado_inicial
-    print (estado_actual)
-    for i in range(10):
-        accion = Accion(1,1)
-        print(f"====================================== \nAccion: {accion}")
-        estado_sig = Funcion_transicion(estado_actual, accion)
-        estado_actual = estado_sig
-        print(estado_sig)
-    grafo = matriz_adyacencia_a_grafo(estado_sig,True)
+    conexividad = False 
+    gen = 0
+    suma = 0 
+    MAX_GEN = 5000  # seguridad para evitar loop infinito
+
+    while not conexividad and suma != 42 :
+        estado_inicial = np.eye(TAM_MATRIZ)
+        estado_actual = estado_inicial.copy()
+
+        for _ in range(1000):
+            accion = Accion()
+            estado_sig = Funcion_transicion(estado_actual, accion)
+            estado_actual = estado_sig
+
+        grafo = matriz_adyacencia_a_grafo(estado_sig, True)
+        conexividad = es_conexo(grafo)
+        suma = sumas(estado_sig)
+        gen += 1
+
+        print(f"Generación: {gen} \n Suma conexiones: {suma} \n Es conexo? {conexividad}")
+
     dibujar_grafo(grafo)
+   
