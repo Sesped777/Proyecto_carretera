@@ -1,8 +1,7 @@
-# importamos las librererias necesarias y configuramos manim, libreria necesaria para animaciones
 import numpy as np
 import random
 from Grafos import matriz_adyacencia_a_grafo,dibujar_grafo,es_conexo
-
+from Construccion import *
 # Declaramos las contantes, las cantidades de piezas de cada tipo
 RECTAS = 12
 CURVAS = 16
@@ -14,7 +13,7 @@ def sumas (matriz):
     return np.sum(np.sum(matriz, axis=0) - np.diag(matriz))
 
 def sumas_ejes(matriz):
-        return np.sum(matriz, axis=0) - np.diag(matriz), np.sum(matriz, axis=1) - np.diag(matriz) 
+    return np.sum(matriz, axis=0) - np.diag(matriz), np.sum(matriz, axis=1) - np.diag(matriz) 
 
 def rangos(tipo):
     if tipo == 1:
@@ -57,13 +56,15 @@ def Funcion_transicion(estado, accion):
 def Accion(a = 1, b = 4):
     return random.randint(a,b), random.randint(a,b)
 
+
+
 if __name__ == '__main__':
     conexividad = False 
     gen = 0
     suma = 0 
     MAX_GEN = 5000  # seguridad para evitar loop infinito
-
-    while not conexividad: #while not conexividad or suma != 42 :
+    #random.seed(1984)
+    while not conexividad:
         estado_inicial = np.eye(TAM_MATRIZ)
         estado_actual = estado_inicial.copy()
 
@@ -77,6 +78,11 @@ if __name__ == '__main__':
         suma = sumas(estado_sig)
         gen += 1
 
-        print(f"Generación: {gen} \n Suma conexiones: {suma} \n Es conexo? {conexividad}")
-    dibujar_grafo(grafo)
-   
+        #print(f"Generación: {gen} \n Suma conexiones: {suma} \n Es conexo? {conexividad}")
+    #print(estado_sig)
+    estado_final = estado_sig 
+    np.fill_diagonal(estado_final, 0)
+    #print(estado_final[0])
+    pista = Construir_pista(estado_final)
+    graficar_pista(pista)
+    print("acabo todo el programa")
