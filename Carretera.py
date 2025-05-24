@@ -63,7 +63,7 @@ if __name__ == '__main__':
     gen = 0
     suma = 0 
     MAX_GEN = 5000  # seguridad para evitar loop infinito
-    #random.seed(1984)
+    random.seed(1984)
     while not conexividad:
         estado_inicial = np.eye(TAM_MATRIZ)
         estado_actual = estado_inicial.copy()
@@ -83,6 +83,8 @@ if __name__ == '__main__':
     estado_final = estado_sig 
     np.fill_diagonal(estado_final, 0)
     #print(estado_final[0])
+
+    #dibujar_grafo(grafo)
     pista = Construir_pista(estado_final)
     graficar_pista(pista)
     print("acabo todo el programa")
